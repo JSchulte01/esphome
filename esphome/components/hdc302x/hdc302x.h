@@ -45,6 +45,7 @@ class HDC302XComponent : public PollingComponent, public i2c::I2CDevice {
   sensor::Sensor *humidity_sensor_;
 
   HDC302XPowerMode power_mode_{HDC302XPowerMode::HIGH_ACCURACY};
+  bool heater_enabled;
 
   void read_data_();
   uint32_t conversion_delay_ms_();

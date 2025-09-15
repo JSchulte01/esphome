@@ -30,6 +30,8 @@ void HDC302XComponent::setup() {
     this->mark_failed("Clear status failed");
     return;
   }
+
+  this->heater_enabled = false;
 };
 
 void HDC302XComponent::dump_config() {
@@ -59,6 +61,7 @@ bool HDC302XComponent::enable_heater() {
     ESP_LOGE(TAG, "Enable heater failed");
     return false;
   }
+  this->heater_enabled = true;
   return true;
 };
 
@@ -72,7 +75,7 @@ bool HDC302XComponent::configure_heater(const uint16_t power_level) {
   // Configure level of heater current (per datasheet 7.5.7.8).
   uint8_t cmd[] = {
       HDC302X_CMD_HEATER_CONFIGURE[0],   HDC302X_CMD_HEATER_CONFIGURE[1], config[0], config[1],
-      crc8(config, 2, 0xff, 0x31, true),
+      crc8(config, 2, 0xff, 0x31, true),  //
   };
   if (this->write(cmd, sizeof(cmd)) != i2c::ERROR_OK) {
     ESP_LOGE(TAG, "Configure heater failed");
@@ -87,6 +90,7 @@ bool HDC302XComponent::disable_heater() {
     ESP_LOGE(TAG, "Disable heater failed");
     return false;
   }
+  this->heater_enabled = false;
   return true;
 };
 
@@ -109,6 +113,11 @@ void HDC302XComponent::read_data_() {
     uint16_t raw_t = encode_uint16(buf[0], buf[1]);
     // Calculate temperature in Celcius per datasheet section 7.3.3.
     float temp = -45 + 175 * (float(raw_t) / 65535.0f);
+
+    if (temp >= 80 && this->heater_enabled) {
+      this->disable_heater();
+    }
+
     this->temp_sensor_->publish_state(temp);
   }
 
@@ -116,6 +125,13 @@ void HDC302XComponent::read_data_() {
     uint16_t raw_rh = encode_uint16(buf[3], buf[4]);
     // Calculate RH% per datasheet section 7.3.3.
     float humidity = 100 * (float(raw_rh) / 65535.0f);
+
+    if ((humidity >= 90) && !this->heater_enabled) {
+      this->enable_heater();
+    } else if (humidity <= 50 && this->heater_enabled) {
+      this->disable_heater();
+    }
+
     this->humidity_sensor_->publish_state(humidity);
   }
 };
