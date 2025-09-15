@@ -31,7 +31,7 @@ void HDC302XComponent::setup() {
     return;
   }
 
-  this->disable_heater()
+  this->disable_heater();
 };
 
 void HDC302XComponent::dump_config() {
