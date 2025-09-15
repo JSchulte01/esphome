@@ -31,7 +31,7 @@ void HDC302XComponent::setup() {
     return;
   }
 
-  this->heater_enabled = false;
+  this->disable_heater()
 };
 
 void HDC302XComponent::dump_config() {
@@ -61,6 +61,7 @@ bool HDC302XComponent::enable_heater() {
     ESP_LOGE(TAG, "Enable heater failed");
     return false;
   }
+  ESP_LOGI(TAG, "Heater Enabled");
   this->heater_enabled = true;
   return true;
 };
@@ -90,6 +91,7 @@ bool HDC302XComponent::disable_heater() {
     ESP_LOGE(TAG, "Disable heater failed");
     return false;
   }
+  ESP_LOGI(TAG, "Heater Disabled");
   this->heater_enabled = false;
   return true;
 };
@@ -134,6 +136,8 @@ void HDC302XComponent::read_data_() {
 
     this->humidity_sensor_->publish_state(humidity);
   }
+
+  ESP_LOGI(TAG, "Heater State: %d", this->heater_enabled);
 };
 
 uint32_t HDC302XComponent::conversion_delay_ms_() {
