@@ -32,6 +32,7 @@ void HDC302XComponent::setup() {
   }
 
   this->disable_heater();
+  this->configure_heater(4);
 };
 
 void HDC302XComponent::dump_config() {
@@ -63,6 +64,7 @@ bool HDC302XComponent::enable_heater() {
   }
   ESP_LOGI(TAG, "Heater Enabled");
   this->heater_enabled = true;
+
   return true;
 };
 
