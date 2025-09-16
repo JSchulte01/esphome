@@ -130,9 +130,9 @@ void HDC302XComponent::read_data_() {
     // Calculate RH% per datasheet section 7.3.3.
     float humidity = 100 * (float(raw_rh) / 65535.0f);
 
-    if ((humidity >= 90) && !this->heater_enabled) {
+    if ((humidity >= 99) && !this->heater_enabled) {
       this->enable_heater();
-    } else if (humidity <= 50 && this->heater_enabled) {
+    } else if (humidity <= 95 && this->heater_enabled) {
       this->disable_heater();
     }
 
